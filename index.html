@@ -191,6 +191,32 @@ body.on-hero .wrap { display: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chap .btn { margin-top: auto; }
 .extras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+/* schéma résumé du chapitre 3 : bulle centrale reliée à huit altérations */
+.map3 { --star: 0; position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.map3-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.map3-lines line { stroke-width: 2; stroke-dasharray: 6 6; opacity: .7; }
+.map3-hub, .map3 .node { position: relative; z-index: 1; min-width: 0; }
+.map3-hub { grid-column: 1 / -1; background: var(--surface-2); border: 1.5px solid var(--lime); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; justify-content: center; }
+.map3-hub h3 { font-size: 24px; font-weight: 500; letter-spacing: -.02em; }
+.map3 .node { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--nc); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.node-head { display: flex; gap: 12px; align-items: flex-start; }
+.node-head .num { font-family: var(--font-serif); font-style: italic; font-size: 44px; line-height: .8; color: var(--nc); flex: none; }
+.node-head h4 { margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.node-head .ref { display: block; margin-top: 3px; }
+.map3 dl { margin: 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.4; }
+.map3 dl div { display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 8px; }
+.map3 dt { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--nc); padding-top: 2px; }
+.map3 dd { margin: 0; }
+.map3 .node .btn { align-self: flex-start; margin-top: auto; }
+@media (min-width: 1000px) {
+  .map3 { --star: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 22px; }
+  .map3-hub { grid-column: 2; grid-row: 2; align-items: center; text-align: center; }
+  .map3 .node[data-n="1"] { grid-area: 1 / 1; } .map3 .node[data-n="2"] { grid-area: 1 / 2; } .map3 .node[data-n="3"] { grid-area: 1 / 3; }
+  .map3 .node[data-n="4"] { grid-area: 2 / 3; } .map3 .node[data-n="5"] { grid-area: 3 / 3; } .map3 .node[data-n="6"] { grid-area: 3 / 2; }
+  .map3 .node[data-n="7"] { grid-area: 3 / 1; } .map3 .node[data-n="8"] { grid-area: 2 / 1; }
+}
+@media (max-width: 640px) { .map3 { grid-template-columns: 1fr; } .map3 dl div { grid-template-columns: 1fr; gap: 2px; } }
+
 /* fiches Marieb */
 .fiches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
 .fiche { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
@@ -374,7 +400,7 @@ body.on-hero .wrap { display: none; }
     <nav class="pills" aria-label="Navigation principale">
       <button class="pill" type="button" data-nav="accueil" aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 7.2 8 2l6 5.2V14H10V10H6v4H2z" fill="currentColor"/></svg>Accueil</button>
       <button class="pill" type="button" data-nav="chapitres">Chapitres</button>
-      <button class="pill" type="button" data-nav="fiches">Fiches Marieb</button>
+      <button class="pill" type="button" data-nav="fiches">Résumés</button>
       <button class="pill" type="button" data-nav="cerveau">Cerveau 3D</button>
       <button class="pill" type="button" data-nav="defi">Défi final</button>
       <button class="pill" type="button" data-nav="bilan">Mon bilan</button>
@@ -409,10 +435,10 @@ body.on-hero .wrap { display: none; }
         </div>
       </div>
       <ul class="hero-stats" aria-label="Contenu du jeu">
-        <li><b>195</b>questions</li>
+        <li><b id="statQ">289</b>questions</li>
         <li><b>19</b>schémas à identifier</li>
         <li><b>1</b>vrai cerveau en 3D</li>
-        <li><b>5</b>fiches résumées (Marieb)</li>
+        <li><b>6</b>résumés (chapitre 3 et Marieb)</li>
       </ul>
       <span class="credit-photo">Photo : neurones (GFP), Manuel Schottdorf, CC BY-SA 4.0</span>
     </div>
@@ -438,9 +464,9 @@ body.on-hero .wrap { display: none; }
           <button class="btn ghost" id="btnExplo" type="button">Ouvrir l'explorateur</button>
         </div>
         <div class="xcard" data-ch="2">
-          <h3>Fiches <em>Marieb</em></h3>
-          <p class="muted small">Cinq résumés du chapitre 12 de Marieb (4<sup>e</sup> éd.) : encéphale, système limbique, épilepsie, moelle épinière. Lis, puis teste-toi.</p>
-          <button class="btn ghost" id="btnFiches" type="button">Ouvrir les fiches</button>
+          <h3>Les <em>résumés</em></h3>
+          <p class="muted small">Le schéma résumé du chapitre 3 (huit altérations) et cinq fiches tirées de Marieb (4<sup>e</sup> éd.). Lis, puis teste-toi.</p>
+          <button class="btn ghost" id="btnFiches" type="button">Ouvrir les résumés</button>
         </div>
         <div class="xcard" data-ch="0" id="bilanCard">
           <h3>Mon <em>bilan</em></h3>
@@ -476,8 +502,14 @@ body.on-hero .wrap { display: none; }
 
     <section class="view" id="v-fiches" hidden data-ch="2" aria-labelledby="t-fiches">
       <div class="hello">
+        <span class="eyebrow">Schéma résumé · Guide C12</span>
+        <h2 id="t-fiches">Le chapitre 3 <em>en un coup d'œil</em></h2>
+        <p class="muted">Les altérations du système nerveux, p. 59 à 122 du guide. Chaque bulle se teste séparément.</p>
+      </div>
+      <div class="map3" id="map3"></div>
+      <div class="hello" style="margin-top:12px">
         <span class="eyebrow">Fiches résumées · Marieb, 4<sup>e</sup> édition</span>
-        <h2 id="t-fiches">L'essentiel <em>en cinq fiches</em></h2>
+        <h2>L'essentiel <em>en cinq fiches</em></h2>
         <p class="muted">Résumés du chapitre 12 de Marieb et Hoehn, <i>Anatomie et physiologie humaines</i>. Lis une fiche, puis lance son mini-quiz, ou fais le quiz complet sur les cinq fiches.</p>
         <div class="actions" style="justify-content:flex-start"><button class="btn" id="btnQuizMarieb" type="button">Quiz sur les 5 fiches (12 questions)</button></div>
       </div>
@@ -504,7 +536,7 @@ body.on-hero .wrap { display: none; }
 
 <footer class="foot">
   <p class="author">Fait par : <b>Luce Keren Beauvoir</b>, enseignante secteur santé EMS</p>
-  Références : Guide d'apprentissage SASI, compétence 12, Procédés de soins et systèmes nerveux et sensoriel (Chenelière Éducation). MARIEB, E. N. et HOEHN, K., <i>Anatomie et physiologie humaines</i>, 4<sup>e</sup> édition, ERPI, chapitre 12 : les fiches Marieb sont des résumés rédigés pour le jeu, les numéros de page renvoient à ce livre. Les schémas et les questions ont été conçus pour ce jeu ; les autres numéros de page renvoient au guide.
+  Références : Guide d'apprentissage SASI, compétence 12, Procédés de soins et systèmes nerveux et sensoriel (Chenelière Éducation). MARIEB, E. N. et HOEHN, K., <i>Anatomie et physiologie humaines</i>, 4<sup>e</sup> édition, ERPI, chapitre 12 : les fiches Marieb sont des résumés rédigés pour le jeu, les numéros de page renvoient à ce livre. Les schémas, le schéma résumé du chapitre 3 et les questions ont été conçus pour ce jeu ; les autres numéros de page renvoient au guide.
   Modèle 3D du cerveau : <a href="https://commons.wikimedia.org/wiki/File:Brain_AS.stl" target="_blank" rel="noopener">AgnieszkaStarostecka, Wikimedia Commons</a>, licence CC BY 4.0, simplifié et lobes colorés pour le jeu.
   Photo d'accueil : <a href="https://commons.wikimedia.org/wiki/File:GFP_Neurons.png" target="_blank" rel="noopener">GFP Neurons, Manuel Schottdorf</a>, licence CC BY-SA 4.0, recadrée.
 </footer>
@@ -679,6 +711,100 @@ const Q = [
 { ch:3, p:64, r:"parietal", ctx:"Après un AVC dans la région en rouge, monsieur Roy n'arrive plus à écrire, même s'il sait qu'il tient un crayon.", q:"Comment s'appelle cette manifestation ?", c:["L'apraxie","L'aphasie","L'agnosie","L'ataxie"], a:0, e:"L'apraxie, l'incapacité à faire un geste déjà appris, survient quand l'AVC touche le lobe pariétal." },
 { ch:3, p:63, r:"temporal", side:"g", ctx:"Un AVC touche la région en rouge, dans l'hémisphère gauche.", q:"Quel trouble de la communication est le plus probable ?", c:["Une aphasie : communiquer devient très difficile","Une dysarthrie : seule l'articulation est touchée","Une diplopie : le client voit en double","Une ataxie : le client perd l'équilibre"], a:0, e:"Les troubles de la communication (aphasie, dysphasie) surviennent quand l'AVC touche l'hémisphère gauche, notamment l'aire de Wernicke dans le lobe temporal." },
 { ch:3, p:64, r:"frontal", ctx:"Un AVC touche la région en rouge.", q:"Quels troubles cognitifs peut-on observer ?", c:["Mémoire, jugement et attention altérés","Vision double et champ visuel réduit","Vessie qui ne se vide plus du tout, la nuit","Perte d'audition d'une seule oreille"], a:0, e:"Pertes de mémoire, altération du jugement, difficultés de concentration et capacité d'attention limitée surviennent quand l'AVC touche le lobe frontal." },
+{ ch:3, p:59, q:"Parmi les personnes qui font un AVC, quelle proportion se rétablit complètement ?", c:["Seulement 10 %","Environ 50 %","Environ 75 %","Près de 90 %"], a:0, e:"Selon le guide, 15 % des victimes d'AVC en meurent, 75 % gardent des séquelles plus ou moins importantes et seulement 10 % se rétablissent complètement." },
+{ ch:3, p:60, q:"Qu'est-ce qui cause un AVC ischémique ?", c:["Un vaisseau obstrué par un caillot ou de l'athérome","Un vaisseau qui se rompt à l'intérieur du cerveau","Une infection bactérienne des trois méninges","Une décharge excessive de groupes de neurones"], a:0, e:"L'AVC ischémique survient quand un vaisseau est obstrué, complètement ou en partie, par un caillot ou une plaque d'athérome. Une partie du cerveau manque alors d'oxygène et les tissus se nécrosent." },
+{ ch:3, p:61, q:"En général, combien de temps dure une ischémie cérébrale transitoire (ICT) ?", c:["Moins d'une heure","Entre deux et trois jours","Au moins une semaine","Plus d'un mois"], a:0, e:"Une ICT dure généralement moins d'une heure et se dissipe complètement en moins de 24 heures. Elle peut annoncer un AVC." },
+{ ch:3, p:62, q:"Qu'est-ce qui cause une ischémie cérébrale transitoire (ICT) ?", c:["Des microembolies qui gênent l'irrigation un moment","La rupture d'un anévrisme situé dans le cerveau","Une accumulation de LCS dans les ventricules du cerveau","La destruction progressive de la gaine de myéline"], a:0, e:"Des microembolies perturbent temporairement l'irrigation sanguine du cerveau, ce qui cause un manque d'oxygène passager dans une région." },
+{ ch:3, p:62, q:"Selon le guide, quel profil d'âge augmente le risque d'AVC ?", c:["Hommes de plus de 55 ans et femmes ménopausées","Hommes et femmes de moins de 30 ans sans maladie","Enfants d'âge scolaire et adolescents en croissance","Femmes enceintes de moins de 25 ans"], a:0, e:"L'âge est un facteur de risque de l'AVC et de l'ICT : les hommes de plus de 55 ans et les femmes ménopausées sont plus à risque." },
+{ ch:3, p:62, ctx:"Une cliente de 38 ans fume et prend des contraceptifs oraux.", q:"Lequel de ces éléments augmente aussi son risque d'AVC ?", c:["La prise de contraceptifs oraux","Une alimentation riche en fibres","La pratique régulière du vélo","Une hydratation adéquate chaque jour"], a:0, e:"Les contraceptifs oraux font partie des facteurs de risque de l'AVC et de l'ICT, avec le tabagisme, l'hypertension, le diabète, la sédentarité et l'obésité." },
+{ ch:3, p:63, q:"Que signifie « ataxie » ?", c:["Des problèmes d'équilibre","La paralysie d'un seul membre","Une difficulté à avaler","Une vision double"], a:0, e:"L'ataxie désigne des problèmes d'équilibre. Monoplégie : paralysie d'un membre. Dysphagie : difficulté à avaler. Diplopie : vision double." },
+{ ch:3, p:63, q:"Que signifie « monoplégie » ?", c:["La paralysie d'un seul membre","La paralysie des deux jambes","La paralysie d'un côté du corps","La paralysie des quatre membres"], a:0, e:"Monoplégie : paralysie d'un seul membre. Hémiplégie : paralysie de la moitié du corps. Paraplégie : membres inférieurs. Tétraplégie : quatre membres." },
+{ ch:3, p:63, q:"Que signifie « hémiparésie » ?", c:["Un manque de force musculaire d'un côté","Une paralysie complète d'un côté du corps","Une perte de la moitié du champ visuel","Une incapacité à percevoir le côté atteint"], a:0, e:"L'hémiparésie est un manque de force musculaire, alors que l'hémiplégie est une paralysie. Toutes deux touchent le côté opposé à l'hémisphère atteint." },
+{ ch:3, p:63, q:"Quelle est la différence entre l'aphasie et la dysphasie ?", c:["Aphasie : incapacité ; dysphasie : capacité réduite à communiquer","Aphasie : capacité réduite ; dysphasie : incapacité à communiquer","Aphasie : difficulté à avaler ; dysphasie : difficulté à parler","Les deux mots désignent une difficulté à articuler les mots"], a:0, e:"L'aphasie est l'incapacité à communiquer, la dysphasie une capacité réduite à communiquer. Elles surviennent quand l'AVC touche l'aire de Wernicke, dans l'hémisphère gauche." },
+{ ch:3, p:63, ctx:"Depuis son AVC, madame Simard passe du rire aux larmes en quelques minutes.", q:"Comment nomme-t-on cette manifestation ?", c:["La labilité émotionnelle","L'héminégligence du côté atteint","L'agnosie visuelle","L'apraxie motrice"], a:0, e:"La labilité émotionnelle est une humeur changeante. Avec la tristesse, elle fait partie des troubles psychologiques liés à une atteinte de l'hémisphère droit." },
+{ ch:3, p:64, ctx:"Monsieur Joly regarde une fourchette, mais il n'arrive pas à dire ce que c'est.", q:"Comment se nomme cette manifestation ?", c:["L'agnosie","L'apraxie","L'aphasie","L'ataxie"], a:0, e:"L'agnosie est l'incapacité à interpréter un stimulus capté par les sens : les yeux voient l'objet, mais la personne ne le reconnaît pas. Elle survient quand l'AVC touche le lobe occipital ou temporal." },
+{ ch:3, p:64, q:"Quel soin d'assistance aide un client désorienté après un AVC ?", c:["L'orienter dans le temps, l'espace et les personnes","Lui proposer des activités longues et complexes","Éviter de lui rappeler la date pour ne pas le gêner","Changer ses repères de place chaque jour"], a:0, e:"On oriente régulièrement le client dans les trois sphères (temps, espace, personnes) pour diminuer l'anxiété, et on propose des activités qui demandent peu de concentration." },
+{ ch:3, p:64, q:"Que signifie « pollakiurie » ?", c:["Des mictions fréquentes et en petites quantités","Une absence totale d'urine pendant toute une journée","Une urine qui contient du sang visible à l'œil nu","Une miction douloureuse et brûlante"], a:0, e:"La pollakiurie est le fait d'uriner souvent et en petites quantités. Après un AVC, elle peut découler des troubles moteurs, sensoriels ou cognitifs." },
+{ ch:3, p:64, ctx:"Un client a des épisodes d'incontinence depuis son AVC.", q:"Quel soin d'assistance est approprié ?", c:["Un horaire mictionnel et moins de liquides après 18 h","Retirer tous les liquides de sa chambre pour la journée","Lui mettre une culotte et attendre ses appels","Limiter ses déplacements jusqu'aux toilettes"], a:0, e:"On établit un horaire mictionnel, on limite les liquides après 18 h et on répond rapidement aux signaux d'appel pour prévenir l'incontinence." },
+{ ch:3, p:65, q:"Que signifie « diplopie » ?", c:["Une vision double","Une perte de la moitié du champ visuel","Une dilatation anormale de la pupille","Une sensibilité excessive à la lumière"], a:0, e:"La diplopie est une vision double. L'hémianopsie est la perte de la moitié du champ visuel, la mydriase une pupille dilatée et la photophobie une sensibilité à la lumière." },
+{ ch:3, p:65, q:"Après un AVC, à quoi servent surtout les examens comme la TDM ou l'IRM ?", c:["Savoir si l'AVC est ischémique ou hémorragique","Mesurer la force musculaire du côté atteint","Vérifier si le client fait de la fièvre","Remplacer la surveillance neurologique"], a:0, e:"Les examens permettent de savoir si l'AVC est ischémique ou hémorragique, afin de choisir le bon traitement." },
+{ ch:3, p:65, q:"Quel est l'objectif du traitement pendant la phase aiguë d'un AVC ?", c:["Sauver la vie, limiter les dommages, prévenir une récidive","Aider le client à retrouver ses capacités maximales à long terme","Préparer le retour du client au travail","Enseigner l'autocathétérisme au client"], a:0, e:"En phase aiguë, on cherche à sauver la vie du client, à limiter les dommages au cerveau et à prévenir les récidives. La réadaptation vise ensuite à retrouver un maximum de capacités." },
+{ ch:3, p:66, q:"En quoi consiste une angioplastie ?", c:["Gonfler un ballonnet pour écraser la plaque contre l'artère","Placer une agrafe à la base d'un anévrisme rompu dans le cerveau","Retirer chirurgicalement une partie du cerveau","Drainer le surplus de LCS par une sonde"], a:0, e:"Un cathéter muni d'un ballonnet est inséré, puis le ballonnet est gonflé pour écraser la plaque de gras contre la paroi. Une endoprothèse peut rester en place pour garder l'artère ouverte." },
+{ ch:3, p:67, q:"Pourquoi insère-t-on une endoprothèse en spirale dans un anévrisme ?", c:["Pour bloquer le sang et réduire le risque de rupture","Pour dissoudre le caillot qui bouche l'artère du cerveau","Pour mesurer la pression intracrânienne","Pour drainer le sang accumulé hors du crâne"], a:0, e:"L'endoprothèse insérée dans l'anévrisme empêche le sang d'y circuler, ce qui réduit les risques d'éclatement." },
+{ ch:3, p:66, q:"Que signifie « endartériectomie » ?", c:["Enlever un caillot ou une plaque qui bloque une artère","Insérer un ballonnet pour dilater une artère étroite","Placer une agrafe sur un anévrisme qui saigne","Ouvrir la boîte crânienne pour retirer une tumeur"], a:0, e:"L'endartériectomie est une opération qui consiste à enlever un caillot ou une plaque d'athérome qui obstrue une artère." },
+{ ch:3, p:66, q:"L'infirmière auxiliaire peut-elle modifier le débit d'un soluté ?", c:["Oui, à la demande de l'infirmière responsable","Non, jamais, peu importe la situation","Oui, chaque fois qu'elle le juge utile pour le client","Seulement si le médecin est sur place"], a:0, e:"Elle peut installer le cathéter I.V., surveiller le soluté et modifier son débit à la demande de l'infirmière responsable. Elle n'administre jamais de médicaments par voie I.V." },
+{ ch:3, p:67, q:"Pendant la réadaptation après un AVC, que doit promouvoir l'infirmière auxiliaire ?", c:["Saine alimentation, activité physique, arrêt du tabac","Un repos complet au lit pendant plusieurs mois de suite","Une diète riche en sel pour soutenir la pression","L'arrêt de toutes les activités sociales"], a:0, e:"Elle encourage une saine alimentation, un bon contrôle du poids, l'activité physique régulière, l'abandon du tabac et une consommation modérée d'alcool." },
+{ ch:3, p:68, q:"Quel effet secondaire faut-il surveiller avec l'altéplase (Activase) ?", c:["Les saignements","La constipation","L'hyperglycémie","La somnolence"], a:0, e:"L'activateur tissulaire du plasminogène active la dissolution des caillots : le principal risque est le saignement. On surveille le client, les signes vitaux et les signes neurologiques." },
+{ ch:3, p:68, q:"Quel est l'effet de la nimodipine (Nimotop) dans l'AVC hémorragique ?", c:["Dilater les vaisseaux pour mieux irriguer le cerveau","Dissoudre le caillot qui bloque une artère du cerveau","Prévenir les crises convulsives après l'AVC","Faire baisser la glycémie du client"], a:0, e:"Cet inhibiteur calcique dilate les vaisseaux pour améliorer l'irrigation du cerveau. On surveille la pression artérielle, les nausées, les vomissements et les céphalées." },
+{ ch:3, p:69, q:"Pourquoi donne-t-on de l'AAS (Aspirin) à une personne qui a fait une ICT ?", c:["Pour diminuer l'agrégation des plaquettes","Pour soulager la céphalée qui accompagne l'ICT","Pour faire baisser sa fièvre","Pour refermer un anévrisme"], a:0, e:"Après une ICT, un antiplaquettaire ou un anticoagulant est donné de façon préventive pour éviter une thrombose ou une embolie. Le risque principal est le saignement." },
+{ ch:3, p:69, q:"Quelle alimentation promouvoir pour prévenir un AVC ou une récidive ?", c:["Faible en gras trans et saturés, en sel et en sucre","Riche en sel pour soutenir la pression artérielle","Riche en sucre pour bien nourrir les neurones","Sans protéines pour reposer les reins"], a:0, e:"L'infirmière auxiliaire encourage une alimentation faible en acides gras trans et saturés, en sel et en sucre." },
+{ ch:3, p:73, q:"Laquelle de ces causes fait monter la pression intracrânienne en augmentant le volume sanguin ?", c:["Une hémorragie cérébrale","L'hydrocéphalie","Une tumeur cérébrale qui grossit","Un œdème du cerveau"], a:0, e:"Une hémorragie ajoute du sang dans le crâne. L'hydrocéphalie augmente le LCS ; une tumeur ou un œdème augmentent la quantité de tissu." },
+{ ch:3, p:74, q:"Pourquoi l'hypertension artérielle prédispose-t-elle à l'hypertension intracrânienne ?", c:["Elle augmente le risque qu'un vaisseau se rompe","Elle augmente la production de LCS dans le crâne","Elle fait grossir les tumeurs cérébrales","Elle détruit la myéline des neurones"], a:0, e:"L'hypertension artérielle augmente le risque qu'un anévrisme ou un vaisseau se rompe, ce qui ajoute du sang dans le crâne." },
+{ ch:3, p:74, q:"Que signifie « léthargie » ?", c:["Un état d'engourdissement, de somnolence et d'abattement","Un ralentissement du cœur sous 60 battements par minute","Une extension anormale et rigide des quatre membres","Une sensibilité excessive aux bruits ambiants"], a:0, e:"La léthargie fait partie de l'altération de l'état de conscience causée par la compression de l'encéphale, avec la somnolence, la confusion, l'agitation et le coma." },
+{ ch:3, p:74, q:"Que signifie « bradypnée » ?", c:["Moins de 12 respirations par minute","Moins de 60 battements par minute","Plus de 20 respirations par minute","Plus de 100 battements par minute"], a:0, e:"Bradypnée : moins de 12 respirations par minute. Bradycardie : moins de 60 battements par minute. Les deux viennent de la compression du bulbe rachidien." },
+{ ch:3, p:75, q:"Comment se présente la posture de décortication ?", c:["Bras fléchis vers le corps, jambes en extension","Les quatre membres en extension","Bras tendus le long du corps, jambes repliées vers le ventre","Corps mou, sans aucun tonus musculaire"], a:0, e:"Décortication : membres supérieurs en flexion avec adduction, membres inférieurs en extension avec rotation interne. Décérébration : extension des quatre membres." },
+{ ch:3, p:75, q:"Comment décrit-on la céphalée de l'hypertension intracrânienne ?", c:["Constante, de plus en plus forte, pire à l'effort","Légère, présente seulement au réveil","Brève, et soulagée dès que le client se lève du lit","Absente tant que le client reste couché"], a:0, e:"La céphalée est constante, d'intensité croissante et augmente avec l'effort. Elle s'accompagne souvent de photophobie et de phonophobie." },
+{ ch:3, p:75, q:"Dans l'hypertension intracrânienne, qu'est-ce qui cause les vomissements en jet ?", c:["La compression du bulbe rachidien","Une infection de l'estomac","Les antibiotiques donnés par voie I.V.","La déshydratation du client"], a:0, e:"Les vomissements en jet sont causés par la compression du bulbe rachidien. On note leur fréquence et on surveille les signes de déshydratation." },
+{ ch:3, p:74, q:"Pourquoi éviter les efforts chez un client en hypertension intracrânienne ?", c:["Ils augmentent la céphalée et la fréquence cardiaque","Ils font baisser la pression intracrânienne trop vite","Ils bloquent le drainage du LCS par la sonde","Ils provoquent toujours une crise d'épilepsie"], a:0, e:"On évite tout effort pour ne pas augmenter la fréquence cardiaque et on limite les efforts pour ne pas augmenter les céphalées." },
+{ ch:3, p:77, q:"À quoi sert une ventriculostomie ?", c:["Drainer le surplus de LCS dans un sac","Placer une agrafe sur un anévrisme","Retirer une tumeur du cerveau","Injecter un antibiotique dans le LCS"], a:0, e:"Quand le LCS est en trop, une sonde intraventriculaire le draine dans un sac ; on ouvre le robinet lorsque la pression est trop élevée." },
+{ ch:3, p:76, q:"Quel traitement réduit l'œdème quand c'est la quantité de tissu cérébral qui augmente ?", c:["Des corticostéroïdes","Des anticoagulants","Des antibiotiques","Des anticholinergiques"], a:0, e:"Quand le tissu cérébral augmente, on diminue l'œdème avec des corticostéroïdes ou on retire la tumeur par chirurgie." },
+{ ch:3, p:78, q:"Avec le mannitol, pourquoi fait-on des ponctions veineuses selon la prescription ?", c:["Pour surveiller l'équilibre des électrolytes","Pour vérifier la coagulation du sang du client","Pour mesurer la glycémie chaque heure","Pour doser un antibiotique dans le sang"], a:0, e:"Le mannitol, un diurétique, comporte un risque de déséquilibre électrolytique : on fait les ponctions veineuses prescrites et on calcule le bilan des ingesta et des excreta." },
+{ ch:3, p:82, q:"Qu'est-ce que l'encéphalite ?", c:["Une inflammation aiguë de tout l'encéphale","Une inflammation aiguë des méninges seulement","Une tumeur des vaisseaux sanguins du cerveau","Une destruction de la myéline par plaques"], a:0, e:"L'encéphalite est une inflammation aiguë de l'ensemble de l'encéphale. Très grave, elle peut laisser des séquelles permanentes ou être fatale sans traitement rapide." },
+{ ch:3, p:82, q:"Lequel de ces microbes peut causer une méningite bactérienne ?", c:["Le méningocoque","Le virus de la grippe","Le virus de la varicelle","Le virus de l'herpès"], a:0, e:"La méningite bactérienne peut être causée par un méningocoque, un pneumocoque, un streptocoque ou la bactérie E. coli." },
+{ ch:3, p:82, ctx:"Monsieur Cimon revient d'un pays où un virus transmis par les moustiques et les tiques est très répandu.", q:"Quel risque est augmenté chez lui ?", c:["L'encéphalite","La maladie de Parkinson","La sclérose en plaques","La tumeur cérébrale"], a:0, e:"Les voyages dans des pays où le virus sévit sont un facteur de risque de l'encéphalite : la transmission se fait par les tiques et les moustiques." },
+{ ch:3, p:82, q:"Qui est le plus susceptible de contracter une méningite ?", c:["Les enfants, les aînés et les personnes affaiblies","Les adultes de 30 à 40 ans en très bonne santé physique","Les sportifs qui s'entraînent chaque jour","Les personnes qui boivent beaucoup d'eau"], a:0, e:"Les enfants, les personnes âgées et les personnes affaiblies ont un système immunitaire plus fragile. Le contact avec la salive d'une personne infectée est l'autre facteur de risque." },
+{ ch:3, p:83, q:"Qu'est-ce qu'un signe de Kernig positif ?", c:["En position assise, étendre la jambe cause une forte douleur","La flexion du cou fait fléchir les hanches et les genoux du client","La lumière vive provoque une forte céphalée","La peau présente de petites taches rouge violacé"], a:0, e:"Kernig : l'extension de la jambe en position assise cause une douleur intense. Brudzinski : la flexion du cou entraîne la flexion des hanches et des genoux." },
+{ ch:3, p:83, q:"Que faire pour un client atteint de méningite qui fait de l'hyperthermie ?", c:["Le couvrir légèrement et bien l'hydrater","L'envelopper de plusieurs couvertures chaudes","Limiter ses boissons pour éviter les vomissements","Augmenter la température de la chambre"], a:0, e:"On couvre légèrement le client pour ne pas augmenter sa température et on l'hydrate bien pour prévenir la déshydratation." },
+{ ch:3, p:83, q:"Qu'est-ce que le purpura ?", c:["Des pétéchies accumulées qui rougissent la peau","Une raideur de la nuque quand on fléchit le cou du client","Une sensibilité excessive à la lumière","Un gonflement de la paroi d'une artère"], a:0, e:"Le purpura est une accumulation de pétéchies qui donne à la peau une coloration rouge foncé. Il vient du passage des globules rouges hors des vaisseaux." },
+{ ch:3, p:84, q:"Après les premiers jours, quelles manifestations distinguent l'encéphalite de la méningite ?", c:["Altération de la conscience et convulsions","Raideur de la nuque et forte fièvre persistante","Céphalée intense avec photophobie","Nausées et vomissements en jet"], a:0, e:"L'encéphalite ressemble d'abord à la méningite, puis s'ajoutent une altération de l'état de conscience, des tremblements, des convulsions, des paralysies, des troubles de mémoire, de l'hémiparésie et de la dysphasie." },
+{ ch:3, p:84, q:"Comment traite-t-on habituellement une méningite virale ?", c:["On soulage les symptômes ; elle guérit en 3 à 8 jours","On donne des antibiotiques pendant plusieurs mois de suite","On opère pour drainer les méninges infectées","On donne un antiviral pour le reste de la vie"], a:0, e:"La méningite virale se résorbe généralement d'elle-même en trois à huit jours : les soins visent à soulager les symptômes (analgésique, antipyrétique)." },
+{ ch:3, p:85, q:"Quel médicament traite le virus responsable d'une encéphalite ?", c:["L'acyclovir (Zovirax)","L'ampicilline (Ampicin)","La warfarine (Coumadin)","La lévodopa (Sinemet)"], a:0, e:"L'antiviral acyclovir traite le virus qui cause l'encéphalite. L'ampicilline est un antibiotique utilisé dans la méningite bactérienne." },
+{ ch:3, p:88, q:"Que se passe-t-il lors d'une crise myoclonique ?", c:["Des contractions musculaires d'une partie ou de tout le corps","Une perte de tonus qui fait tomber brusquement la personne","Un regard fixe pendant quelques secondes, sans chute","Une odeur ou un son perçu juste avant la crise"], a:0, e:"Crise myoclonique : contractions musculaires d'une partie ou de tout le corps. Crise atonique : perte de tonus et chute. Absence : regard fixe et perte de conscience passagère." },
+{ ch:3, p:88, q:"Dans la majorité des cas, quelle est la cause de l'épilepsie ?", c:["Elle est inconnue","Une tumeur cérébrale","Un traumatisme crânien","Une méningite ancienne"], a:0, e:"La cause exacte est le plus souvent inconnue. L'épilepsie est parfois génétique ou une séquelle d'une tumeur, d'un AVC, d'un traumatisme crânien, d'une infection ou d'une méningite." },
+{ ch:3, p:88, ctx:"Une adolescente épileptique veut aller dans une salle de spectacle avec des lumières stroboscopiques.", q:"Que faut-il lui expliquer ?", c:["Les lumières clignotantes peuvent déclencher une crise","Les lumières vives aident plutôt à prévenir les crises","La musique forte remplace son médicament","Seul l'alcool peut déclencher une crise"], a:0, e:"Les lumières clignotantes (jeux vidéo, stroboscopes, phares) font partie des facteurs qui augmentent les crises, avec le stress, le manque de sommeil, une mauvaise alimentation et les changements hormonaux." },
+{ ch:3, p:89, q:"Que signifie « cyanose » ?", c:["Une coloration bleutée de la peau par manque d'oxygène","Un arrêt de la respiration qui dure plus de dix secondes","Une salivation excessive pendant la crise","Une perte de tonus qui fait tomber la personne"], a:0, e:"La cyanose est une coloration bleutée de la peau causée par un manque d'oxygène dans les tissus. Elle survient pendant la phase tonique, avec l'apnée." },
+{ ch:3, p:89, q:"Dans une crise tonico-clonique, que signifie « apnée » ?", c:["Un arrêt respiratoire de plus de 10 secondes","Une respiration rapide de plus de 30 par minute","Une coloration bleutée des lèvres et des doigts","Une salivation très abondante"], a:0, e:"L'apnée est une période d'arrêt respiratoire de plus de 10 secondes, pendant la phase tonique. On détache les vêtements pour faciliter la respiration." },
+{ ch:3, p:88, q:"Que signifie « sialorrhée » ?", c:["Une salivation excessive","Une bouche très sèche","Une difficulté à avaler","Des vomissements en jet"], a:0, e:"La sialorrhée est une salivation excessive. On l'observe dans la crise tonico-clonique et dans la maladie de Parkinson. La bouche sèche s'appelle xérostomie." },
+{ ch:3, p:90, q:"Comment installe-t-on une personne en position latérale de sécurité ?", c:["Sur le côté, jambe repliée, bouche vers le sol","Sur le dos, les jambes surélevées sur deux oreillers","Assise, la tête entre les genoux","À plat ventre, bras le long du corps"], a:0, e:"On la couche sur le côté, on replie sa jambe, on place la tête en extension et on dirige la bouche vers le sol pour qu'elle ne s'étouffe pas avec ses vomissements." },
+{ ch:3, p:91, q:"Comment fonctionne la stimulation du nerf vague ?", c:["Une électrode au cou envoie des impulsions qui bloquent les décharges","Un aimant posé sur la tête efface le foyer épileptique pour de bon","Une injection dans le nerf vague le détruit de façon définitive","Un comprimé pris chaque matin stimule directement le nerf vague"], a:0, e:"Une électrode implantée sous la peau du cou envoie des impulsions au nerf vague toutes les cinq minutes. Effets possibles : toux, dyspnée, enrouement, fourmillements au cou." },
+{ ch:3, p:91, q:"Quelle restriction peut s'appliquer à une personne épileptique sous traitement ?", c:["Ne pas conduire tant que le médecin ne l'autorise pas","Ne jamais pratiquer d'activité physique de toute sa vie","Éviter toute exposition au soleil","Ne plus jamais travailler"], a:0, e:"Malgré les médicaments, certaines restrictions demeurent, comme s'abstenir de conduire ou porter un casque pour certaines activités. Le médecin peut lever l'interdiction après un certain temps sans crise." },
+{ ch:3, p:92, q:"Pourquoi déconseiller l'alcool à un client qui prend de la phénytoïne (Dilantin) ?", c:["L'alcool amplifie l'effet sédatif du médicament","L'alcool annule complètement l'effet du médicament","L'alcool cause une hémorragie dans le cerveau","L'alcool provoque une raideur de la nuque"], a:0, e:"Les anticonvulsivants ont un effet sédatif que l'alcool amplifie. On conseille aussi au client de se lever et de se déplacer lentement." },
+{ ch:3, p:90, q:"Quand peut-on envisager une chirurgie pour traiter l'épilepsie ?", c:["Quand les médicaments ne donnent pas de bons résultats","Dès la première crise, avant d'essayer tout médicament","Seulement chez les enfants de moins de 5 ans","Quand le client refuse de passer une EEG"], a:0, e:"Les médicaments sont le premier traitement. Si la personne n'y réagit pas bien, on peut extraire le foyer épileptique, stimuler le nerf vague ou essayer la diète cétogène." },
+{ ch:3, p:94, q:"Selon le guide, combien de personnes de plus de 50 ans sont atteintes de la maladie de Parkinson ?", c:["Une sur 100","Une sur 10","Une sur 1 000","Une sur 2"], a:0, e:"Une personne sur 100 en est atteinte après 50 ans, et les hommes sont plus touchés que les femmes. La maladie touche aussi de 5 à 10 % des personnes de 30 à 55 ans." },
+{ ch:3, p:95, q:"Lequel de ces éléments est un facteur de risque de la maladie de Parkinson ?", c:["L'exposition à certains pesticides","Une carence en vitamine D","La prise de contraceptifs oraux","Une alimentation riche en fibres"], a:0, e:"Antécédents familiaux, exposition à certains pesticides ou polluants (comme le monoxyde de carbone), abus de drogues et anomalies chromosomiques sont les facteurs ciblés." },
+{ ch:3, p:95, q:"Comment commencent les tremblements de la maladie de Parkinson ?", c:["D'un seul côté, en mouvements d'émiettement","Des deux côtés à la fois, et cela dès le début","Seulement aux jambes, pendant la marche","Seulement quand la personne dort"], a:0, e:"Les tremblements sont les premières manifestations : ils touchent d'abord un seul côté, comme si la personne émiettait du pain, puis se généralisent aux deux côtés." },
+{ ch:3, p:96, q:"Que signifie « dyskinésie » ?", c:["Une difficulté d'exécution des mouvements","Un ralentissement des mouvements du corps","Une difficulté à amorcer un mouvement","Un excès de tonus d'un muscle au repos"], a:0, e:"Dyskinésie : difficulté d'exécution des mouvements. Bradykinésie : ralentissement. Akinésie : difficulté à amorcer certains mouvements volontaires." },
+{ ch:3, p:96, q:"Pourquoi laisser beaucoup de temps aux repas d'un client atteint de Parkinson ?", c:["Pour prévenir l'étouffement lié à la dysphagie","Pour qu'il digère mieux ses médicaments du matin","Pour qu'il mange plus de calories","Pour diminuer sa sialorrhée"], a:0, e:"La rigidité musculaire cause de la dysphagie : on adapte la diète et on laisse assez de temps pour s'alimenter afin de prévenir l'étouffement." },
+{ ch:3, p:97, q:"Comment pose-t-on le diagnostic de la maladie de Parkinson ?", c:["Symptômes, antécédents et réponse aux médicaments","Une ponction lombaire qui montre la présence d'un virus","Une EEG enregistrée pendant une crise","Une biopsie stéréotaxique du cerveau"], a:0, e:"Aucun examen précis ne la diagnostique : les symptômes connus, les antécédents familiaux et une réaction positive aux antiparkinsoniens suffisent. L'IRM sert surtout à la recherche." },
+{ ch:3, p:97, q:"Quel énoncé sur le traitement de la maladie de Parkinson est exact ?", c:["On ralentit la progression, mais on ne guérit pas","Une chirurgie guérit la plupart des clients opérés","Un antibiotique donné tôt guérit la maladie","Aucun médicament n'atténue les symptômes"], a:0, e:"Il n'existe pas de traitement curatif : on ralentit la progression et on atténue les symptômes, surtout avec des médicaments. Certaines chirurgies réduisent les tremblements chez quelques clients." },
+{ ch:3, p:98, q:"Pourquoi prescrit-on parfois de la paroxétine (Paxil) à un client atteint de Parkinson ?", c:["Pour traiter les symptômes de dépression","Pour augmenter la production de dopamine","Pour diminuer directement les tremblements","Pour réduire la salivation excessive"], a:0, e:"Un antidépresseur s'ajoute parfois à l'antiparkinsonien et à l'anticholinergique quand la personne présente des symptômes de dépression." },
+{ ch:3, p:98, q:"Quel conseil donner à un client qui prend de la lévodopa (Sinemet) ?", c:["Se déplacer lentement pour éviter les étourdissements","Prendre une dose seulement pendant un épisode de tremblement","Boire du jus de pamplemousse avec chaque dose","Cesser le médicament dès que ça va mieux"], a:0, e:"La lévodopa peut causer nausées, vomissements et étourdissements : on avise le client de se déplacer lentement. Le jus de pamplemousse est à éviter avec le Tegretol." },
+{ ch:3, p:101, q:"Selon les recherches, qu'est-ce qui pourrait déclencher la sclérose en plaques ?", c:["Un virus qui déclenche une réaction auto-immune","La destruction des neurones à dopamine","Un caillot qui bloque une artère du cerveau","Une bactérie qui infecte le LCS et les méninges"], a:0, e:"La cause exacte est inconnue. Un virus déclencherait une réaction auto-immune qui détruit la myéline ; des facteurs héréditaires et génétiques joueraient aussi un rôle." },
+{ ch:3, p:101, q:"Lequel de ces éléments est un facteur de risque de la sclérose en plaques ?", c:["Une carence en vitamine D","Une exposition à la radiothérapie","L'apnée du sommeil","L'abus de drogues"], a:0, e:"Facteurs de risque : être une femme de 20 à 40 ans, habiter un climat tempéré, produits chimiques, tabagisme, carence en vitamine D et excès de gras animal." },
+{ ch:3, p:101, q:"Pourquoi le diagnostic de la sclérose en plaques est-il parfois long à poser ?", c:["Les symptômes vont et viennent pendant des années","Aucun symptôme n'apparaît avant l'âge de 70 ans","L'IRM ne montre jamais les plaques de myéline","La maladie se confond toujours avec une méningite"], a:0, e:"Les premières manifestations peuvent passer inaperçues : elles apparaissent, disparaissent, puis reviennent ou changent, jusqu'à ce que la maladie s'installe." },
+{ ch:3, p:102, q:"Dans la sclérose en plaques, que causent les plaques situées dans le cervelet ?", c:["Des vertiges et des étourdissements","Une vision double d'un même objet","Une perte de mémoire à court terme","Une dysfonction sexuelle"], a:0, e:"Les plaques de démyélinisation dans le cervelet causent vertiges et étourdissements. La diplopie et le nystagmus viennent de l'atteinte du nerf optique." },
+{ ch:3, p:103, q:"Quel examen confirme le diagnostic de sclérose en plaques ?", c:["L'IRM","La ponction lombaire","L'EEG","La radiographie osseuse"], a:0, e:"Le médecin se base sur les manifestations cliniques ; l'IRM confirme ensuite le diagnostic en montrant les petites plaques causées par le durcissement de l'axone." },
+{ ch:3, p:104, q:"Quels effets secondaires surveiller avec la prednisone dans la sclérose en plaques ?", c:["Hyperglycémie, euphorie et hypertension","Hypoglycémie, somnolence et hypotension","Saignements, nausées et chute des cheveux","Bouche sèche, vision brouillée, constipation"], a:0, e:"Le corticostéroïde réduit l'inflammation en phase aiguë. On surveille la glycémie et les signes d'hyperactivité, et on conseille de limiter le sel." },
+{ ch:3, p:104, q:"Quel est l'effet du baclofène (Lioresal) dans la sclérose en plaques ?", c:["Diminuer la spasticité musculaire","Espacer les poussées de la maladie","Réduire l'inflammation en phase aiguë","Réparer la myéline détruite"], a:0, e:"Le myorelaxant diminue la spasticité. Il cause de la somnolence : pas d'alcool, se lever lentement, le prendre avec un aliment." },
+{ ch:3, p:104, q:"Quel élément alimentaire pourrait améliorer la condition d'un client atteint de sclérose en plaques ?", c:["La vitamine D","La vitamine K","Le sel","Le sucre"], a:0, e:"Aucune diète particulière n'est requise, mais certaines recherches montrent que la vitamine D pourrait améliorer la condition du client." },
+{ ch:3, p:103, q:"Qu'est-ce qui aide le client atteint de sclérose en plaques à conserver sa mobilité ?", c:["L'exercice régulier et la physiothérapie","Le repos complet au lit pendant les poussées","Une diète sans aucun gras","Des antibiotiques en continu"], a:0, e:"Il n'existe pas de traitement curatif, mais l'exercice régulier et la physiothérapie permettent de conserver la mobilité." },
+{ ch:3, p:106, q:"Dans quel groupe d'âge se trouvent la plupart des victimes de lésions de la moelle épinière ?", c:["De 15 à 34 ans","De 50 à 64 ans","De 65 à 80 ans","Moins de 10 ans"], a:0, e:"Dans 78 % des cas, les victimes ont de 15 à 34 ans, et 81 % sont des hommes. Les accidents de véhicules motorisés causent 55 % des cas." },
+{ ch:3, p:107, q:"Quelle est la cause de près de 90 % des lésions de la moelle épinière ?", c:["Un traumatisme, comme un accident","Une infection bactérienne ou virale","Une maladie comme la sclérose en plaques","Un mauvais apport de sang à la moelle"], a:0, e:"Près de 90 % des lésions viennent de traumatismes (accident, agression). Environ 10 % ont une cause non traumatique : infection, maladie, trouble d'irrigation." },
+{ ch:3, p:108, q:"Quels sont les principaux facteurs de risque des lésions de la moelle épinière ?", c:["L'imprudence et des mesures de sécurité inadéquates","L'hérédité et certaines anomalies chromosomiques","Le tabagisme et l'hypercholestérolémie","Une carence en vitamine D"], a:0, e:"La négligence humaine, la témérité, l'imprudence et les mesures de sécurité inadéquates sont les principaux facteurs de risque." },
+{ ch:3, p:108, q:"Quel soin facilite la respiration après une lésion médullaire haute ?", c:["Installer le client en position semi-assise","Le coucher à plat sur le dos, sans aucun oreiller","Limiter ses exercices de toux","Le laisser dans la même position"], a:0, e:"On installe le client en position semi-assise, on fait faire des exercices respiratoires et de toux, on donne l'oxygène prescrit et on change sa position aux deux heures." },
+{ ch:3, p:108, q:"Pourquoi fait-on faire des exercices passifs à un client paraplégique ?", c:["Pour prévenir les contractures musculaires","Pour réparer la moelle endommagée","Pour faire baisser sa pression artérielle","Pour prévenir une crise d'épilepsie"], a:0, e:"Les exercices passifs préviennent les contractures. On encourage aussi la réadaptation physique pour favoriser l'autonomie." },
+{ ch:3, p:109, q:"Lequel de ces examens sert à diagnostiquer une lésion de la moelle épinière ?", c:["La myélographie","L'électroencéphalographie","L'audiométrie tonale","La biopsie stéréotaxique"], a:0, e:"On utilise surtout la TDM, l'IRM, la myélographie et la radiographie osseuse." },
+{ ch:3, p:110, q:"Quel énoncé sur la chirurgie après une lésion de la moelle est exact ?", c:["Elle peut limiter les dommages, sans rendre les capacités","Elle répare complètement la moelle dans la plupart des cas","Elle est inutile dans tous les cas","Elle se fait seulement après un an"], a:0, e:"Aucune chirurgie ne répare la moelle. Une intervention peut limiter les dommages secondaires, mais ne redonne pas les capacités fonctionnelles." },
+{ ch:3, p:111, q:"Quelle diète privilégier après une lésion de la moelle épinière ?", c:["Une diète riche en fibres","Une diète cétogène","Une restriction liquidienne","Une diète sans protéines"], a:0, e:"Une diète riche en fibres prévient la constipation, fréquente à cause de l'immobilité et des analgésiques narcotiques." },
+{ ch:3, p:109, q:"À quoi sert l'autocathétérisme chez un client qui a une vessie neurogène ?", c:["À vider lui-même sa vessie avec un cathéter","À mesurer sa pression artérielle chaque heure","À prévenir les lésions de pression au siège","À remplacer la diète riche en fibres"], a:0, e:"Le client utilise un cathéter intermittent pour vider sa vessie. L'infirmière auxiliaire revient sur l'enseignement de l'infirmière pour favoriser son autonomie." },
+{ ch:3, p:113, q:"Une tumeur qui touche le tronc cérébral et le cervelet (pontocérébelleuse) peut causer :", c:["Une perte d'audition et un engourdissement","Une perte de vision d'un seul côté du champ visuel","Un changement de la personnalité","Des mictions plus fréquentes"], a:0, e:"Une tumeur pontocérébelleuse peut causer un engourdissement ou une perte de sensibilité et une perte d'audition." },
+{ ch:3, p:114, q:"Chez un client atteint d'une tumeur cérébrale, qu'est-ce qui cause les céphalées, les vomissements et les convulsions ?", c:["L'hypertension intracrânienne","Une infection des méninges","Une baisse de la glycémie","La chimiothérapie seulement"], a:0, e:"Céphalées, nausées, vomissements, convulsions et pertes de conscience sont causés par l'hypertension intracrânienne que crée la tumeur." },
+{ ch:3, p:115, q:"Quels examens servent à diagnostiquer une tumeur cérébrale ?", c:["L'IRM et la biopsie stéréotaxique","L'EEG et la ponction lombaire","La myélographie et la radiographie","L'audiométrie et la TDM du thorax"], a:0, e:"L'IRM et la biopsie stéréotaxique sont les examens nécessaires au diagnostic." },
+{ ch:3, p:115, q:"Après une craniotomie, pourquoi surélève-t-on la tête du lit à 30° ?", c:["Pour diminuer la pression intracrânienne","Pour faciliter les vomissements","Pour éviter l'apparition de lésions de pression","Pour garder le client éveillé"], a:0, e:"La tête du lit à 30° diminue la pression intracrânienne. On surveille aussi les signes neurologiques et les signes vitaux." },
+{ ch:3, p:116, q:"Pendant la radiothérapie, que faire si le client a moins d'appétit ?", c:["Servir des repas en petites portions","Servir trois gros repas par jour","Supprimer toutes les collations de la journée","Attendre la fin des traitements"], a:0, e:"On surveille les effets sur l'appétit (goût altéré, difficulté à avaler) et on sert de petites portions ; au besoin, on demande conseil à un diététiste." },
+{ ch:3, p:117, q:"Quel conseil donner à un client qui perd ses cheveux pendant la chimiothérapie ?", c:["Rasage préventif, casquette, foulard ou perruque","Laver ses cheveux plusieurs fois par jour, à l'eau chaude","Cesser la chimiothérapie sans avis médical","Exposer son crâne au soleil chaque jour"], a:0, e:"L'alopécie est un effet secondaire des antinéoplasiques : on donne des conseils comme le rasage préventif ou le port d'une casquette, d'un foulard ou d'une perruque." },
+{ ch:3, p:116, q:"Après la chimiothérapie, pourquoi vérifie-t-on le site I.V. ?", c:["Pour prévenir l'infiltration et les brûlures chimiques","Pour mesurer la glycémie juste après chaque traitement","Pour éviter une crise d'épilepsie","Pour diminuer la chute des cheveux"], a:0, e:"On vérifie le site I.V. pour prévenir l'infiltration et les brûlures chimiques en cas d'extravasation, et on surveille les effets secondaires." },
+{ ch:3, p:117, q:"Quel soin aide un client qui a des nausées après la chimiothérapie ?", c:["Offrir des repas légers, mais plus fréquents","Servir de gros repas riches en gras et en sucre","Le faire marcher juste après le repas","Réduire son hygiène buccale"], a:0, e:"On offre des repas légers et plus fréquents, on installe le client confortablement, on donne les médicaments prescrits et on assure une bonne hygiène buccale." },
 { ch:1, fi:1, src:"M", p:"M512", r:"diencephale", ctx:"Un client a une tumeur qui comprime l'hypothalamus.", q:"Quel trouble est le plus probable ?", c:["Une température et une soif mal régulées","Des gestes mal coordonnés et des chutes","Une perte de vision d'un côté du champ","Une difficulté à comprendre ce qu'on dit"], a:0, e:"L'hypothalamus est le principal centre d'intégration du système nerveux autonome : il règle la température, la faim, la soif, l'équilibre hydrique et les rythmes biologiques." },
 { ch:1, fi:1, src:"M", p:"M512", q:"Quel est le rôle principal des noyaux du thalamus ?", c:["Relayer les influx sensitifs vers le cortex","Produire l'hormone antidiurétique et l'ocytocine","Coordonner l'équilibre et la posture du corps","Régler la fréquence cardiaque et la respiration"], a:0, e:"Le thalamus est une gare de triage : il relaie les influx sensitifs vers le cortex et les influx moteurs entre le cortex et les centres moteurs inférieurs. Il participe aussi à la mémoire. L'ADH est produite par l'hypothalamus." },
 { ch:1, fi:1, src:"M", p:"M512", r:"tronc", ctx:"Un patient a une hémorragie qui comprime le bulbe rachidien.", q:"Quelles fonctions vitales faut-il surveiller de près ?", c:["Le pouls, la respiration et la pression","La vision, l'audition et l'équilibre","La mémoire, le jugement et l'humeur","La faim, la soif et le cycle du sommeil"], a:0, e:"Le bulbe abrite les centres qui règlent la fréquence cardiaque, le diamètre des vaisseaux (pression artérielle) et la respiration, ainsi que le vomissement et la toux." },
@@ -1572,6 +1698,57 @@ const FICHES = [
     ["Choc spinal", ["Juste après l'accident : perte de tous les réflexes sous la lésion, chute de la pression artérielle, arrêt des réflexes vésical et de défécation. À surveiller de près."]]
   ] }
 ];
+/* ---------- Schéma résumé du chapitre 3 (guide C12, p. 59 à 122) : résumé rédigé pour le jeu ---------- */
+const RESUME3 = [
+  { n: 1, titre: "AVC et ICT", p: [59, 71], c: "#ff7a6b",
+    def: "Arrêt de la circulation ou rupture d'un vaisseau au cerveau. L'ICT est une baisse passagère de l'irrigation (moins de 24 h) qui peut annoncer un AVC.",
+    cause: "Thrombose, embolie (AVC ischémique) ou hémorragie (AVC hémorragique).",
+    signes: "Atteinte du côté opposé : hémiplégie, aphasie (gauche), héminégligence (droit), hémianopsie, dysphagie.",
+    soins: "Ustensiles du côté fonctionnel, questions fermées, texture adaptée, position aux 2 h.",
+    rx: "Thrombolyse si ischémique ; pas d'anticoagulant si hémorragique ; AAS après une ICT." },
+  { n: 2, titre: "Hypertension intracrânienne", p: [72, 80], c: "#ffb347",
+    def: "Hausse de la pression dans le crâne quand le sang, le LCS ou le tissu cérébral augmente.",
+    cause: "AVC, hémorragie, tumeur, traumatisme crânien, hydrocéphalie.",
+    signes: "Conscience altérée, P.A. haute avec bradycardie et bradypnée, mydriase, vomissements en jet, décortication.",
+    soins: "Tête du lit à 30°, restriction liquidienne, aucun effort, calme et éclairage tamisé.",
+    rx: "Mannitol (diurétique) et dexaméthasone (corticostéroïde) ; ventriculostomie." },
+  { n: 3, titre: "Méningite et encéphalite", p: [81, 86], c: "#f2d45c",
+    def: "Inflammation aiguë des méninges (méningite) ou de tout l'encéphale (encéphalite).",
+    cause: "Virus, bactéries (méningocoque, pneumocoque) ; tiques et moustiques pour l'encéphalite.",
+    signes: "Fièvre, céphalée, photophobie, raideur de la nuque (Kernig, Brudzinski), pétéchies.",
+    soins: "Précautions contre les gouttelettes, couvrir légèrement, hydrater, tamiser l'éclairage.",
+    rx: "Antibiotiques sans attendre le résultat, acyclovir (encéphalite), antipyrétique." },
+  { n: 4, titre: "Épilepsie", p: [87, 93], c: "#d5f45e",
+    def: "Crises convulsives causées par des décharges excessives des neurones.",
+    cause: "Le plus souvent inconnue. Déclencheurs : stress, manque de sommeil, lumières clignotantes.",
+    signes: "Tonico-clonique : aura, phase tonique, phase clonique, phase post-ictale. Aussi absence, crise myoclonique, crise atonique.",
+    soins: "Allonger au sol, protéger la tête, rien dans la bouche, ne pas retenir, puis position latérale de sécurité.",
+    rx: "Anticonvulsivants, sans jamais d'arrêt brusque ; EEG pour confirmer." },
+  { n: 5, titre: "Maladie de Parkinson", p: [94, 99], c: "#5fd6a8",
+    def: "Maladie dégénérative : destruction des neurones qui sécrètent la dopamine.",
+    cause: "Inconnue. Facteurs : antécédents familiaux, pesticides, abus de drogues.",
+    signes: "Tremblements d'émiettement, bradykinésie, akinésie, rigidité, petits pas, visage figé, sialorrhée.",
+    soins: "Respecter son rythme, environnement sécuritaire, débarbouillette, temps pour manger.",
+    rx: "Lévodopa, anticholinergique (procyclidine), antidépresseur au besoin." },
+  { n: 6, titre: "Sclérose en plaques", p: [100, 105], c: "#6fb7ff",
+    def: "Destruction de la gaine de myéline : l'axone durcit en plaques. Évolue par poussées.",
+    cause: "Probablement auto-immune. Facteurs : femme de 20 à 40 ans, climat tempéré, peu de vitamine D, tabac.",
+    signes: "Ataxie, spasticité, diplopie, nystagmus, vertiges, engourdissements, troubles urinaires.",
+    soins: "Réadaptation, outils adaptés, horaire mictionnel, informer la famille.",
+    rx: "Prednisone (poussée), interféron (espace les crises), myorelaxant ; IRM pour confirmer." },
+  { n: 7, titre: "Lésions de la moelle épinière", p: [106, 111], c: "#a58bff",
+    def: "Moelle sectionnée ou comprimée : tout ce qui est sous la lésion est atteint.",
+    cause: "Près de 90 % de traumatismes (accidents, agressions).",
+    signes: "C1 à C4 : respiration ; cervicale : tétraplégie ; lombaire : paraplégie ; vessie neurogène.",
+    soins: "Ne pas déplacer la victime, position aux 2 h, exercices respiratoires, autocathétérisme.",
+    rx: "Méthylprednisolone dans les 8 h, analgésiques ; diète riche en fibres." },
+  { n: 8, titre: "Tumeur cérébrale", p: [112, 118], c: "#ff8fc7",
+    def: "Masse cancéreuse dans le crâne, primaire ou secondaire (métastases).",
+    cause: "Inconnue. Facteurs : 45 ans et plus, antécédents, pesticides, radiothérapie.",
+    signes: "Selon le lieu : frontal (personnalité, mémoire), occipital (vision), cervelet (équilibre) ; HIC.",
+    soins: "Après craniotomie : tête à 30°, signes neurologiques, s'assurer que le client s'éveille bien.",
+    rx: "Chirurgie, radiothérapie, chimiothérapie (nausées, alopécie, neutropénie)." }
+];
 // Thème sombre imposé : fond bleu nuit.
 document.documentElement.dataset.theme = "dark";
 /* ---------- Moteur : outils, accès, carte des chapitres ---------- */
@@ -1736,7 +1913,42 @@ function quizMarieb(fi) {
   const f = fi && FICHES.find(x => x.n === fi);
   startRound({ chs: [2], key: fi ? "marieb-f" + fi : "marieb", label: f ? `Fiche ${fi} · ${f.titre}` : "Quiz Marieb · les 5 fiches", make: () => marItems(fi).slice(0, 12) });
 }
+/* schéma résumé du chapitre 3 */
+const secItems = s => shuffle(Q.filter(q => q.ch === 3 && !q.src && q.p >= s.p[0] && q.p <= s.p[1]).map(q => ({ t: "mcq", q, m: q.r ? "cerveau" : "situations", ch: 3 })));
+function quizSection(n) {
+  if (!ensure()) return;
+  const s = RESUME3.find(x => x.n === n);
+  startRound({ chs: [3], key: "ch3-s" + n, label: `Chapitre 3 · ${s.titre}`, make: () => secItems(s).slice(0, 12) });
+}
+function renderMap3() {
+  const rows = [["Quoi", "def"], ["Causes", "cause"], ["Signes", "signes"], ["Soins", "soins"], ["Traitement", "rx"]];
+  $("#map3").innerHTML = `<svg class="map3-lines" id="map3Lines" aria-hidden="true"></svg>
+  <div class="map3-hub"><span class="eyebrow">Chapitre 3 · p. 59 à 122</span><h3>Les altérations <em>du système nerveux</em></h3><p class="muted small">Huit altérations, chacune en cinq repères : quoi, causes, signes, soins, traitement.</p><button class="btn sm" type="button" id="btnQuizCh3">Jouer au chapitre 3</button></div>
+  ${RESUME3.map(s => `<article class="node" data-n="${s.n}" style="--nc:${s.c}">
+    <div class="node-head"><span class="num">${s.n}</span><div><h4>${s.titre}</h4><span class="ref">Guide C12, p. ${s.p[0]} à ${s.p[1]}</span></div></div>
+    <dl>${rows.map(([l, k]) => `<div><dt>${l}</dt><dd>${s[k]}</dd></div>`).join("")}</dl>
+    <button class="btn ghost sm" type="button" data-sec="${s.n}">Me tester (${Math.min(12, secItems(s).length)} questions)</button>
+  </article>`).join("")}`;
+  document.querySelectorAll("[data-sec]").forEach(b => b.onclick = () => quizSection(+b.dataset.sec));
+  $("#btnQuizCh3").onclick = () => { if (ensure()) startRound({ chs: [3], modes: modeSel[3], n: 12, key: "ch3", label: `Chapitre 3 · ${CH[3].titre}` }); };
+  drawMap3();
+}
+// Relie la bulle centrale à chaque altération (seulement quand la grille en étoile est affichée).
+function drawMap3() {
+  const box = $("#map3"), svg = $("#map3Lines"), hub = box && box.querySelector(".map3-hub");
+  if (!svg || !hub) return;
+  const B = box.getBoundingClientRect(), H = hub.getBoundingClientRect();
+  if (getComputedStyle(box).getPropertyValue("--star").trim() !== "1") { svg.innerHTML = ""; return; }
+  const hx = H.left + H.width / 2 - B.left, hy = H.top + H.height / 2 - B.top;
+  svg.setAttribute("viewBox", `0 0 ${B.width} ${B.height}`);
+  svg.innerHTML = [...box.querySelectorAll(".node")].map(n => {
+    const R = n.getBoundingClientRect(), x = R.left + R.width / 2 - B.left, y = R.top + R.height / 2 - B.top;
+    return `<line x1="${hx}" y1="${hy}" x2="${x}" y2="${y}" stroke="${n.style.getPropertyValue("--nc")}" />`;
+  }).join("");
+}
+window.addEventListener("resize", () => { if (!$("#v-fiches").hidden) drawMap3(); });
 function renderFiches() {
+  renderMap3();
   $("#marRef").textContent = MARIEB;
   $("#fiches").innerHTML = FICHES.map(f => `<article class="fiche">
     <div class="fiche-head"><span class="num">${f.n}</span><div><h3>${f.titre} <em>${f.em}</em></h3><span class="ref">Marieb, 4<sup>e</sup> éd., ${f.ref}</span></div></div>
@@ -2033,6 +2245,7 @@ document.addEventListener("keydown", e => {
   if (!R.locked && /^[1-4]$/.test(e.key)) { const b = document.querySelectorAll("#stage .choice")[+e.key - 1]; if (b) { e.preventDefault(); b.click(); } }
   else if (R.locked && e.key === "Enter" && document.activeElement && document.activeElement.id !== "btnNext") { e.preventDefault(); next(); }
 });
+$("#statQ").textContent = Q.length;
 initGate();
 refreshPlayer();
 const startFinal = () => startRound({ chs: [1, 2, 3], modes: null, n: 15, key: "final", label: "Défi final · chapitres 1 à 3" });
